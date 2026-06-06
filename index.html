@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ 星座占卜 - 探索你的命运 ✨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.8s ease-in;
+            margin: 0 auto 40px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        /* 登录区域 */
+        .login-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+            margin-bottom: 25px;
+        }
+
+        .login-bar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .login-bar .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .btn-login {
+            padding: 8px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+        }
+
+        .btn-login:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        .btn-logout {
+            padding: 6px 15px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        /* 登录弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 400px;
+            width: 90%;
+            animation: modalIn 0.3s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal h2 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 25px;
+        }
+
+        .modal .input-group {
+            margin-bottom: 20px;
+        }
+
+        .modal label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .modal input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+        }
+
+        .modal input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .modal .btn-confirm {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .modal .btn-cancel {
+            flex: 1;
+            padding: 12px;
+            background: #eee;
+            color: #666;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        input[type="date"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input[type="date"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .zodiac-display {
+            text-align: center;
+            font-size: 3em;
+            margin: 20px 0;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            display: none;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-like {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-like:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-like.liked {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-share {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #764ba2;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .btn-share:hover {
+            background: #764ba2;
+            color: white;
+        }
+
+        .result-item {
+            margin: 15px 0;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-item strong {
+            color: #764ba2;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .fortune-score {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .stars {
+            color: #ffd700;
+            font-size: 1.2em;
+        }
+
+        .lucky-items {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .lucky-tag {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+
+        .suggestion {
+            background: #fff3cd;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 4px solid #ffc107;
+        }
+
+        /* 留言区 */
+        .comments-section {
+            margin-top: 40px;
+            padding: 25px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            display: none;
+        }
+
+        .comments-section.active {
+            display: block;
+        }
+
+        .comments-section h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .comment-form textarea {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.95em;
+            resize: vertical;
+            min-height: 60px;
+            font-family: inherit;
+        }
+
+        .comment-form textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .comment-form .btn-submit {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            align-self: flex-end;
+        }
+
+        .comment-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            animation: commentIn 0.3s ease-out;
+        }
+
+        @keyframes commentIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .comment-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            color: white;
+        }
+
+        .comment-time {
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        .comment-content {
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 15px;
+            font-size: 0.85em;
+        }
+
+        .comment-like-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .comment-like-btn:hover, .comment-like-btn.liked {
+            color: #667eea;
+        }
+
+        .no-comments {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+        }
+
+        .toggle-comments {
+            width: 100%;
+            padding: 12px;
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 20px;
+            transition: all 0.3s;
+        }
+
+        .toggle-comments:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            padding: 15px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ 星座占卜 ✨</h1>
+        <p class="subtitle">输入你的生日，揭开星座的神秘面纱</p>
+
+        <!-- 登录栏 -->
+        <div class="login-bar" id="loginBar">
+            <div class="user-info" id="userInfo" style="display: none;">
+                <div class="avatar" id="userAvatar"></div>
+                <span id="userName"></span>
+            </div>
+            <div id="loginBtnContainer">
+                <button class="btn-login" onclick="showLoginModal()">🔮 微信登录 / 昵称登录</button>
+            </div>
+            <button class="btn-logout" id="logoutBtn" style="display: none;" onclick="logout()">退出</button>
+        </div>
+
+        <div class="input-group">
+            <label for="birthday">🎂 选择你的生日</label>
+            <input type="date" id="birthday" onchange="updateZodiac()">
+        </div>
+
+        <div class="input-group">
+            <label for="zodiac">🌟 确认你的星座</label>
+            <select id="zodiac">
+                <option value="">自动识别中...</option>
+                <option value="白羊座">♈ 白羊座 (3.21-4.19)</option>
+                <option value="金牛座">♉ 金牛座 (4.20-5.20)</option>
+                <option value="双子座">♊ 双子座 (5.21-6.21)</option>
+                <option value="巨蟹座">♋ 巨蟹座 (6.22-7.22)</option>
+                <option value="狮子座">♌ 狮子座 (7.23-8.22)</option>
+                <option value="处女座">♍ 处女座 (8.23-9.22)</option>
+                <option value="天秤座">♎ 天秤座 (9.23-10.23)</option>
+                <option value="天蝎座">♏ 天蝎座 (10.24-11.22)</option>
+                <option value="射手座">♐ 射手座 (11.23-12.21)</option>
+                <option value="摩羯座">♑ 摩羯座 (12.22-1.19)</option>
+                <option value="水瓶座">♒ 水瓶座 (1.20-2.18)</option>
+                <option value="双鱼座">♓ 双鱼座 (2.19-3.20)</option>
+            </select>
+        </div>
+
+        <div class="zodiac-display" id="zodiacDisplay">🔮</div>
+
+        <button class="btn" onclick="startDivination()">🔮 开始占卜 🔮</button>
+
+        <div class="result" id="result">
+            <h2 id="resultTitle"></h2>
+            
+            <!-- 统计栏 -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-number" id="likeCount">0</div>
+                    <div class="stat-label">点赞</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="viewCount">0</div>
+                    <div class="stat-label">查看</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="commentCount">0</div>
+                    <div class="stat-label">留言</div>
+                </div>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="result-actions">
+                <button class="btn-like" id="btnLike" onclick="toggleLike()">
+                    <span id="likeIcon">🤍</span>
+                    <span id="likeText">点赞</span>
+                </button>
+                <button class="btn-share" onclick="shareResult()">📤 分享</button>
+            </div>
+
+            <div id="resultContent"></div>
+        </div>
+
+        <!-- 切换留言区 -->
+        <button class="toggle-comments" id="toggleCommentsBtn" onclick="toggleComments()">💬 查看留言 (0)</button>
+
+        <!-- 留言区 -->
+        <div class="comments-section" id="commentsSection">
+            <h3>💬 用户留言</h3>
+            
+            <div class="comment-form" id="commentForm">
+                <textarea id="commentInput" placeholder="说点什么吧..."></textarea>
+                <button class="btn-submit" onclick="submitComment()">发送</button>
+            </div>
+
+            <div id="commentsList"></div>
+        </div>
+    </div>
+
+    <!-- 登录弹窗 -->
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
+            <h2>🔮 登录占卜</h2>
+            <p style="text-align: center; color: #888; margin-bottom: 20px; font-size: 0.9em;">
+                微信登录需后端支持，当前使用昵称登录
+            </p>
+            <div class="input-group">
+                <label for="nickname">昵称</label>
+                <input type="text" id="nickname" placeholder="输入你的昵称" maxlength="20">
+            </div>
+            <div class="input-group">
+                <label for="avatarEmoji">选择头像 emoji</label>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <span style="cursor: pointer; font-size: 1.5em; padding: 5px 10px; border: 2px solid #ddd; border-radius: 10px;" onclick="selectAvatar(this)">😊</span>
+                    <span style="cursor: pointer; font-size: 1.5em; padding: 5px 10px; border: 2px solid #ddd; border-radius: 10px;" onclick="selectAvatar(this)">🐱</span>
+                    <span style="cursor: pointer; font-size: 1.5em; padding: 5px 10px; border: 2px solid #ddd; border-radius: 10px;" onclick="selectAvatar(this)">🌟</span>
+                    <span style="cursor: pointer; font-size: 1.5em; padding: 5px 10px; border: 2px solid #ddd; border-radius: 10px;" onclick="selectAvatar(this)">🎨</span>
+                    <span style="cursor: pointer; font-size: 1.5em; padding: 5px 10px; border: 2px solid #ddd; border-radius: 10px;" onclick="selectAvatar(this)">🍀</span>
+                    <span style="cursor: pointer; font-size: 1.5em; padding: 5px 10px; border: 2px solid #ddd; border-radius: 10px;" onclick="selectAvatar(this)">🦊</span>
+                </div>
+            </div>
+            <div class="btn-group">
+                <button class="btn-cancel" onclick="hideLoginModal()">取消</button>
+                <button class="btn-confirm" onclick="confirmLogin()">确认登录</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局状态
+        let currentUser = null;
+        let currentZodiac = null;
+        let isLiked = false;
+        let commentsVisible = false;
+        let selectedAvatar = '😊';
+
+        // 星座数据
+        const zodiacData = {
+            '白羊座': {
+                emoji: '♈', element: '火象', planet: '火星',
+                traits: '热情、冲动、勇敢、领导力强',
+                luckyColors: ['红色', '橙色', '金色'],
+                luckyNumbers: [1, 8, 17, 26],
+                luckyDays: '周二、周六',
+                compatible: '狮子座、射手座',
+                fortunes: { love: 85, career: 78, wealth: 82, health: 90, lucky: 88 }
+            },
+            '金牛座': {
+                emoji: '♉', element: '土象', planet: '金星',
+                traits: '稳重、务实、耐心、享受生活',
+                luckyColors: ['绿色', '粉色', '蓝色'],
+                luckyNumbers: [2, 6, 15, 24],
+                luckyDays: '周五、周一',
+                compatible: '处女座、摩羯座',
+                fortunes: { love: 80, career: 85, wealth: 90, health: 75, lucky: 82 }
+            },
+            '双子座': {
+                emoji: '♊', element: '风象', planet: '水星',
+                traits: '聪明、善变、好奇心强、沟通能力强',
+                luckyColors: ['黄色', '灰色', '银色'],
+                luckyNumbers: [3, 9, 18, 27],
+                luckyDays: '周三、周日',
+                compatible: '天秤座、水瓶座',
+                fortunes: { love: 75, career: 88, wealth: 78, health: 80, lucky: 80 }
+            },
+            '巨蟹座': {
+                emoji: '♋', element: '水象', planet: '月亮',
+                traits: '敏感、顾家、善良、直觉力强',
+                luckyColors: ['银色', '白色', '海蓝色'],
+                luckyNumbers: [2, 7, 16, 25],
+                luckyDays: '周一、周四',
+                compatible: '天蝎座、双鱼座',
+                fortunes: { love: 92, career: 76, wealth: 80, health: 85, lucky: 83 }
+            },
+            '狮子座': {
+                emoji: '♌', element: '火象', planet: '太阳',
+                traits: '自信、慷慨、领导力、爱表现',
+                luckyColors: ['金色', '橙色', '紫色'],
+                luckyNumbers: [1, 5, 14, 23],
+                luckyDays: '周日、周二',
+                compatible: '白羊座、射手座',
+                fortunes: { love: 82, career: 92, wealth: 85, health: 88, lucky: 87 }
+            },
+            '处女座': {
+                emoji: '♍', element: '土象', planet: '水星',
+                traits: '完美主义、细心、务实、分析力强',
+                luckyColors: ['米色', '绿色', '棕色'],
+                luckyNumbers: [3, 6, 15, 24],
+                luckyDays: '周三、周五',
+                compatible: '金牛座、摩羯座',
+                fortunes: { love: 73, career: 90, wealth: 82, health: 78, lucky: 81 }
+            },
+            '天秤座': {
+                emoji: '♎', element: '风象', planet: '金星',
+                traits: '和谐、优雅、公正、社交能力强',
+                luckyColors: ['粉色', '蓝色', '淡紫色'],
+                luckyNumbers: [4, 7, 16, 25],
+                luckyDays: '周五、周一',
+                compatible: '双子座、水瓶座',
+                fortunes: { love: 88, career: 82, wealth: 78, health: 80, lucky: 82 }
+            },
+            '天蝎座': {
+                emoji: '♏', element: '水象', planet: '冥王星',
+                traits: '神秘、热情、执着、洞察力强',
+                luckyColors: ['深红色', '黑色', '酒红色'],
+                luckyNumbers: [8, 11, 20, 29],
+                luckyDays: '周二、周四',
+                compatible: '巨蟹座、双鱼座',
+                fortunes: { love: 90, career: 85, wealth: 88, health: 82, lucky: 86 }
+            },
+            '射手座': {
+                emoji: '♐', element: '火象', planet: '木星',
+                traits: '乐观、自由、冒险、哲学思维',
+                luckyColors: ['紫色', '深蓝色', '红色'],
+                luckyNumbers: [3, 9, 18, 27],
+                luckyDays: '周四、周二',
+                compatible: '白羊座、狮子座',
+                fortunes: { love: 78, career: 82, wealth: 85, health: 92, lucky: 84 }
+            },
+            '摩羯座': {
+                emoji: '♑', element: '土象', planet: '土星',
+                traits: '踏实、有野心、责任感强、耐心',
+                luckyColors: ['棕色', '黑色', '深绿色'],
+                luckyNumbers: [4, 8, 17, 26],
+                luckyDays: '周六、周五',
+                compatible: '金牛座、处女座',
+                fortunes: { love: 75, career: 95, wealth: 92, health: 78, lucky: 85 }
+            },
+            '水瓶座': {
+                emoji: '♒', element: '风象', planet: '天王星',
+                traits: '独立、创新、人道主义、前卫',
+                luckyColors: ['蓝色', '银色', '青色'],
+                luckyNumbers: [4, 7, 16, 25],
+                luckyDays: '周六、周日',
+                compatible: '双子座、天秤座',
+                fortunes: { love: 76, career: 88, wealth: 80, health: 82, lucky: 82 }
+            },
+            '双鱼座': {
+                emoji: '♓', element: '水象', planet: '海王星',
+                traits: '浪漫、敏感、富有同情心、艺术气质',
+                luckyColors: ['海蓝色', '紫色', '银色'],
+                luckyNumbers: [3, 7, 12, 21],
+                luckyDays: '周四、周一',
+                compatible: '巨蟹座、天蝎座',
+                fortunes: { love: 95, career: 75, wealth: 78, health: 80, lucky: 82 }
+            }
+        };
+
+        // 初始化
+        function init() {
+            loadUser();
+            loadComments();
+            updateCommentsUI();
+        }
+
+        // 加载用户
+        function loadUser() {
+            const saved = localStorage.getItem('fortuneUser');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                updateLoginUI();
+            }
+        }
+
+        // 更新登录 UI
+        function updateLoginUI() {
+            const userInfo = document.getElementById('userInfo');
+            const loginBtn = document.getElementById('loginBtnContainer');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const userName = document.getElementById('userName');
+            const userAvatar = document.getElementById('userAvatar');
+
+            if (currentUser) {
+                userInfo.style.display = 'flex';
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'block';
+                userName.textContent = currentUser.nickname;
+                userAvatar.textContent = currentUser.avatar;
+            } else {
+                userInfo.style.display = 'none';
+                loginBtn.style.display = 'block';
+                logoutBtn.style.display = 'none';
+            }
+        }
+
+        // 显示登录弹窗
+        function showLoginModal() {
+            document.getElementById('loginModal').classList.add('active');
+        }
+
+        // 隐藏登录弹窗
+        function hideLoginModal() {
+            document.getElementById('loginModal').classList.remove('active');
+        }
+
+        // 选择头像
+        function selectAvatar(el) {
+            document.querySelectorAll('#loginModal .modal span').forEach(s => {
+                s.style.borderColor = '#ddd';
+                s.style.background = 'none';
+            });
+            el.style.borderColor = '#667eea';
+            el.style.background = 'rgba(102,126,234,0.1)';
+            selectedAvatar = el.textContent;
+        }
+
+        // 确认登录
+        function confirmLogin() {
+            const nickname = document.getElementById('nickname').value.trim();
+            if (!nickname) {
+                alert('请输入昵称！');
+                return;
+            }
+            currentUser = {
+                nickname: nickname,
+                avatar: selectedAvatar,
+                loginTime: new Date().toISOString()
+            };
+            localStorage.setItem('fortuneUser', JSON.stringify(currentUser));
+            updateLoginUI();
+            hideLoginModal();
+            alert('登录成功！欢迎 ' + nickname + ' ✨');
+        }
+
+        // 退出登录
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('fortuneUser');
+            updateLoginUI();
+        }
+
+        // 根据生日计算星座
+        function getZodiac(month, day) {
+            if ((month === 3 && day >= 21) || (month === 4 && day <= 19)) return '白羊座';
+            if ((month === 4 && day >= 20) || (month === 5 && day <= 20)) return '金牛座';
+            if ((month === 5 && day >= 21) || (month === 6 && day <= 21)) return '双子座';
+            if ((month === 6 && day >= 22) || (month === 7 && day <= 22)) return '巨蟹座';
+            if ((month === 7 && day >= 23) || (month === 8 && day <= 22)) return '狮子座';
+            if ((month === 8 && day >= 23) || (month === 9 && day <= 22)) return '处女座';
+            if ((month === 9 && day >= 23) || (month === 10 && day <= 23)) return '天秤座';
+            if ((month === 10 && day >= 24) || (month === 11 && day <= 22)) return '天蝎座';
+            if ((month === 11 && day >= 23) || (month === 12 && day <= 21)) return '射手座';
+            if ((month === 12 && day >= 22) || (month === 1 && day <= 19)) return '摩羯座';
+            if ((month === 1 && day >= 20) || (month === 2 && day <= 18)) return '水瓶座';
+            if ((month === 2 && day >= 19) || (month === 3 && day <= 20)) return '双鱼座';
+            return '';
+        }
+
+        // 更新星座显示
+        function updateZodiac() {
+            const birthday = document.getElementById('birthday').value;
+            if (!birthday) return;
+            const date = new Date(birthday);
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const zodiac = getZodiac(month, day);
+            const select = document.getElementById('zodiac');
+            select.value = zodiac;
+            const display = document.getElementById('zodiacDisplay');
+            if (zodiac && zodiacData[zodiac]) {
+                display.textContent = zodiacData[zodiac].emoji;
+            } else {
+                display.textContent = '🔮';
+            }
+        }
+
+        // 生成星星评分
+        function generateStars(score) {
+            const fullStars = Math.floor(score / 20);
+            let stars = '';
+            for (let i = 0; i < 5; i++) {
+                stars += i < fullStars ? '★' : '☆';
+            }
+            return stars;
+        }
+
+        // 今日运势建议
+        function getAdvice(zodiac, fortuneType) {
+            const advices = {
+                love: [
+                    '今天适合表达爱意，勇敢一点！',
+                    '感情运势平稳，适合深入了解对方',
+                    '可能会有意外惊喜，保持开放心态',
+                    '适合独处思考，理清感情思路'
+                ],
+                career: [
+                    '工作效率高，适合完成重要任务',
+                    '贵人运强，多与他人交流合作',
+                    '适合学习新技能，提升自己',
+                    '可能需要面对挑战，保持冷静'
+                ],
+                wealth: [
+                    '财运亨通，适合投资理财',
+                    '消费需谨慎，避免冲动购物',
+                    '可能有意外收入，注意把握机会',
+                    '适合制定长期财务计划'
+                ],
+                health: [
+                    '精力充沛，适合运动锻炼',
+                    '注意休息，不要过度劳累',
+                    '饮食宜清淡，多喝水',
+                    '适合放松身心，做做瑜伽或冥想'
+                ]
+            };
+            const typeAdvices = advices[fortuneType] || advices.love;
+            const index = Math.floor(Math.random() * typeAdvices.length);
+            return typeAdvices[index];
+        }
+
+        // 切换点赞
+        function toggleLike() {
+            if (!currentUser) {
+                alert('请先登录再点赞！');
+                showLoginModal();
+                return;
+            }
+            isLiked = !isLiked;
+            const btn = document.getElementById('btnLike');
+            const icon = document.getElementById('likeIcon');
+            const text = document.getElementById('likeText');
+            const count = document.getElementById('likeCount');
+            
+            if (isLiked) {
+                btn.classList.add('liked');
+                icon.textContent = '❤️';
+                text.textContent = '已点赞';
+                let c = parseInt(count.textContent) || 0;
+                count.textContent = c + 1;
+                saveLikeState();
+            } else {
+                btn.classList.remove('liked');
+                icon.textContent = '🤍';
+                text.textContent = '点赞';
+                let c = parseInt(count.textContent) || 0;
+                count.textContent = Math.max(0, c - 1);
+                saveLikeState();
+            }
+        }
+
+        // 保存点赞状态
+        function saveLikeState() {
+            if (!currentZodiac) return;
+            const key = 'fortuneLike_' + currentZodiac;
+            localStorage.setItem(key, JSON.stringify({ liked: isLiked, count: parseInt(document.getElementById('likeCount').textContent) }));
+        }
+
+        // 加载点赞状态
+        function loadLikeState(zodiac) {
+            const key = 'fortuneLike_' + zodiac;
+            const saved = localStorage.getItem(key);
+            if (saved) {
+                const data = JSON.parse(saved);
+                isLiked = data.liked || false;
+                document.getElementById('likeCount').textContent = data.count || 0;
+            } else {
+                isLiked = false;
+                document.getElementById('likeCount').textContent = Math.floor(Math.random() * 20) + 5;
+            }
+            const btn = document.getElementById('btnLike');
+            const icon = document.getElementById('likeIcon');
+            const text = document.getElementById('likeText');
+            if (isLiked) {
+                btn.classList.add('liked');
+                icon.textContent = '❤️';
+                text.textContent = '已点赞';
+            } else {
+                btn.classList.remove('liked');
+                icon.textContent = '🤍';
+                text.textContent = '点赞';
+            }
+        }
+
+        // 分享结果
+        function shareResult() {
+            const title = document.getElementById('resultTitle').textContent;
+            const content = document.getElementById('resultContent').innerText;
+            const text = title + '\n\n' + content.substring(0, 200) + '...';
+            
+            if (navigator.share) {
+                navigator.share({ title: title, text: text, url: window.location.href });
+            } else {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('运势已复制到剪贴板，快去分享给朋友吧！');
+                });
+            }
+        }
+
+        // 切换留言区
+        function toggleComments() {
+            commentsVisible = !commentsVisible;
+            const section = document.getElementById('commentsSection');
+            if (commentsVisible) {
+                section.classList.add('active');
+                document.getElementById('toggleCommentsBtn').textContent = '💬 收起留言';
+            } else {
+                section.classList.remove('active');
+                updateToggleBtn();
+            }
+        }
+
+        // 更新切换按钮
+        function updateToggleBtn() {
+            const count = document.getElementById('commentCount').textContent;
+            document.getElementById('toggleCommentsBtn').textContent = '💬 查看留言 (' + count + ')';
+        }
+
+        // 提交留言
+        function submitComment() {
+            if (!currentUser) {
+                alert('请先登录再留言！');
+                showLoginModal();
+                return;
+            }
+            const input = document.getElementById('commentInput');
+            const content = input.value.trim();
+            if (!content) {
+                alert('请输入留言内容！');
+                return;
+            }
+            const comment = {
+                id: Date.now(),
+                author: currentUser.nickname,
+                avatar: currentUser.avatar,
+                content: content,
+                time: new Date().toLocaleString('zh-CN'),
+                likes: 0,
+                liked: false
+            };
+            let comments = JSON.parse(localStorage.getItem('fortuneComments') || '[]');
+            comments.unshift(comment);
+            localStorage.setItem('fortuneComments', JSON.stringify(comments));
+            input.value = '';
+            loadComments();
+            updateCommentsUI();
+            alert('留言成功！');
+        }
+
+        // 加载留言
+        function loadComments() {
+            const comments = JSON.parse(localStorage.getItem('fortuneComments') || '[]');
+            const list = document.getElementById('commentsList');
+            if (comments.length === 0) {
+                list.innerHTML = '<div class="no-comments">暂无留言，来说点什么吧~ 💬</div>';
+            } else {
+                list.innerHTML = comments.map(c => `
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-author">
+                                <div class="comment-avatar">${c.avatar}</div>
+                                <span>${c.author}</span>
+                            </div>
+                            <span class="comment-time">${c.time}</span>
+                        </div>
+                        <div class="comment-content">${c.content}</div>
+                        <div class="comment-actions">
+                            <button class="comment-like-btn ${c.liked ? 'liked' : ''}" onclick="likeComment(${c.id})">
+                                <span>${c.liked ? '❤️' : '🤍'}</span>
+                                <span>${c.likes || 0}</span>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('commentCount').textContent = comments.length;
+            updateToggleBtn();
+        }
+
+        // 留言点赞
+        function likeComment(id) {
+            if (!currentUser) {
+                alert('请先登录！');
+                showLoginModal();
+                return;
+            }
+            let comments = JSON.parse(localStorage.getItem('fortuneComments') || '[]');
+            const idx = comments.findIndex(c => c.id === id);
+            if (idx === -1) return;
+            if (comments[idx].liked) {
+                comments[idx].likes--;
+                comments[idx].liked = false;
+            } else {
+                comments[idx].likes++;
+                comments[idx].liked = true;
+            }
+            localStorage.setItem('fortuneComments', JSON.stringify(comments));
+            loadComments();
+        }
+
+        // 更新留言 UI
+        function updateCommentsUI() {
+            const count = document.getElementById('commentCount').textContent;
+            // 更新统计
+        }
+
+        // 开始占卜
+        function startDivination() {
+            const birthday = document.getElementById('birthday').value;
+            const zodiac = document.getElementById('zodiac').value;
+            if (!birthday) {
+                alert('请先选择你的生日！');
+                return;
+            }
+            if (!zodiac) {
+                alert('无法确定你的星座，请手动选择！');
+                return;
+            }
+            currentZodiac = zodiac;
+            const data = zodiacData[zodiac];
+            if (!data) {
+                alert('星座数据加载失败，请重试！');
+                return;
+            }
+            const birthDate = new Date(birthday);
+            const today = new Date();
+            const age = today.getFullYear() - birthDate.getFullYear();
+            const nextBirthday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
+            if (nextBirthday < today) {
+                nextBirthday.setFullYear(nextBirthday.getFullYear() + 1);
+            }
+            const daysUntilBirthday = Math.ceil((nextBirthday - today) / (1000 * 60 * 60 * 24));
+            const resultTitle = document.getElementById('resultTitle');
+            const resultContent = document.getElementById('resultContent');
+            resultTitle.textContent = `${data.emoji} ${zodiac} - 今日运势 🔮`;
+            let fortunesHTML = '';
+            const fortuneNames = {
+                love: '💕 爱情运势',
+                career: '💼 事业运势',
+                wealth: '💰 财运指数',
+                health: '🏥 健康指数',
+                lucky: '🍀 综合运势'
+            };
+            for (const [key, value] of Object.entries(data.fortunes)) {
+                const name = fortuneNames[key] || key;
+                const stars = generateStars(value);
+                const advice = getAdvice(zodiac, key);
+                fortunesHTML += `
+                    <div class="result-item">
+                        <strong>${name}</strong>
+                        <div class="fortune-score">
+                            <span class="stars">${stars}</span>
+                            <span>${value}分</span>
+                        </div>
+                        <div class="suggestion">💡 ${advice}</div>
+                    </div>
+                `;
+            }
+            const luckyColorsHTML = data.luckyColors.map(c => `<span class="lucky-tag">${c}</span>`).join('');
+            const luckyNumbersHTML = data.luckyNumbers.map(n => `<span class="lucky-tag">${n}</span>`).join('');
+            resultContent.innerHTML = `
+                <div class="result-item">
+                    <strong>🎂 生日信息</strong>
+                    <p>年龄：${age} 岁</p>
+                    <p>距离下次生日：还有 <strong>${daysUntilBirthday}</strong> 天</p>
+                </div>
+                <div class="result-item">
+                    <strong>🌟 星座特征</strong>
+                    <p>元素：${data.element}象星座</p>
+                    <p>守护星：${data.planet}</p>
+                    <p>性格：${data.traits}</p>
+                    <p>最佳配对：${data.compatible}</p>
+                </div>
+                ${fortunesHTML}
+                <div class="result-item">
+                    <strong>🍀 今日幸运</strong>
+                    <p>幸运颜色：</p>
+                    <div class="lucky-items">${luckyColorsHTML}</div>
+                    <p style="margin-top: 10px;">幸运数字：</p>
+                    <div class="lucky-items">${luckyNumbersHTML}</div>
+                    <p style="margin-top: 10px;">幸运日：${data.luckyDays}</p>
+                </div>
+                <div class="suggestion">
+                    💫 <strong>温馨提示：</strong>星座运势仅供参考，真正的命运掌握在自己手中。保持积极心态，好运自然来！
+                </div>
+            `;
+            // 加载点赞状态
+            loadLikeState(zodiac);
+            // 更新查看次数
+            let views = parseInt(document.getElementById('viewCount').textContent) || 0;
+            document.getElementById('viewCount').textContent = views + 1;
+            // 显示结果
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 页面加载时初始化
+        window.onload = init;
+    </script>
+</body>
+</html>
