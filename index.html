@@ -97,6 +97,7 @@ body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#1a1a2e
 <h1>🔮 星座占卜</h1>
 <p style="margin-bottom:20px;color:rgba(255,255,255,0.7)">登录以开始你的占卜之旅</p>
 <input type="text" id="nickname-input" placeholder="输入你的昵称">
+<input type="date" id="birthday-input" placeholder="选择你的生日" style="margin:10px 0">
 <div class="avatar-section">
 <h3>选择头像</h3>
 <div class="avatar-presets" id="avatar-presets"></div>
@@ -188,7 +189,7 @@ body{font-family:'Segoe UI',sans-serif;background:linear-gradient(135deg,#1a1a2e
 <button class="btn btn-primary" onclick="drawTarot(3)" style="margin:5px">抽3张</button>
 </div>
 <div class="tarot-cards" id="tarot-cards"></div>
-<div class="result-box" id="tarot-result" style="display:none"></div>
+<div id="tarot-result" style="margin-top:20px"></div>
 </div>
 </div>
 
@@ -416,6 +417,25 @@ let currentUser = null;
 let selectedAvatar = null;
 let selectedZodiac = null;
 
+function getZodiacByDate(dateStr) {
+  // dateStr: YYYY-MM-DD
+  const d = new Date(dateStr);
+  const m = d.getMonth() + 1;
+  const day = d.getDate();
+  if ((m === 3 && day >= 21) || (m === 4 && day <= 19)) return 0;  // 白羊座
+  if ((m === 4 && day >= 20) || (m === 5 && day <= 20)) return 1;  // 金牛座
+  if ((m === 5 && day >= 21) || (m === 6 && day <= 21)) return 2;  // 双子座
+  if ((m === 6 && day >= 22) || (m === 7 && day <= 22)) return 3;  // 巨蟹座
+  if ((m === 7 && day >= 23) || (m === 8 && day <= 22)) return 4;  // 狮子座
+  if ((m === 8 && day >= 23) || (m === 9 && day <= 22)) return 5;  // 处女座
+  if ((m === 9 && day >= 23) || (m === 10 && day <= 23)) return 6; // 天秤座
+  if ((m === 10 && day >= 24) || (m === 11 && day <= 22)) return 7; // 天蝎座
+  if ((m === 11 && day >= 23) || (m === 12 && day <= 21)) return 8; // 射手座
+  if ((m === 12 && day >= 22) || (m === 1 && day <= 19)) return 9;  // 摩羯座
+  if ((m === 1 && day >= 20) || (m === 2 && day <= 18)) return 10;  // 水瓶座
+  return 11; // 双鱼座
+}
+
 // ========== Init ==========
 function init() {
   // Avatar presets
@@ -481,7 +501,12 @@ function doLogin() {
   const nick = document.getElementById('nickname-input').value.trim();
   if (!nick) { alert('请输入昵称'); return; }
   if (!selectedAvatar) { alert('请选择或上传头像'); return; }
-  currentUser = { nickname: nick, avatar: selectedAvatar };
+  const birthday = document.getElementById('birthday-input').value;
+  currentUser = { nickname: nick, avatar: selectedAvatar, birthday: birthday || '' };
+  if (birthday) {
+    const zIdx = getZodiacByDate(birthday);
+    currentUser.zodiac = zIdx;
+  }
   localStorage.setItem('zodiac_user', JSON.stringify(currentUser));
   showMainPage();
 }
@@ -490,6 +515,12 @@ function showMainPage() {
   document.getElementById('top-avatar').src = currentUser.avatar.startsWith('data:') ? currentUser.avatar : '';
   document.getElementById('top-avatar').textContent = currentUser.avatar.startsWith('data:') ? '' : currentUser.avatar;
   document.getElementById('top-nick').textContent = currentUser.nickname;
+  // Auto-select zodiac if birthday is known
+  if (currentUser.zodiac !== undefined && currentUser.zodiac !== null) {
+    selectedZodiac = currentUser.zodiac;
+    document.querySelectorAll('.zodiac-opt').forEach(e => e.classList.remove('selected'));
+    document.querySelectorAll('.zodiac-opt')[selectedZodiac].classList.add('selected');
+  }
   showPage('main-page');
 }
 
@@ -536,7 +567,7 @@ function getZodiacFortune() {
 function drawTarot(num) {
   const container = document.getElementById('tarot-cards');
   container.innerHTML = '';
-  document.getElementById('tarot-result').style.display = 'none';
+  document.getElementById('tarot-result').innerHTML = '';
   
   const drawn = [];
   const available = [...TAROT_MAJOR];
@@ -552,6 +583,15 @@ function drawTarot(num) {
     el.onclick = () => flipCard(el, card);
     container.appendChild(el);
   });
+  
+  // 添加重新抽牌按钮
+  const btn = document.createElement('button');
+  btn.className = 'btn btn-secondary';
+  btn.style.marginTop = '15px';
+  btn.style.fontSize = '0.9em';
+  btn.textContent = '🔄 重新抽牌';
+  btn.onclick = () => drawTarot(num);
+  container.appendChild(btn);
 }
 
 function flipCard(el, card) {
@@ -574,7 +614,11 @@ function flipCard(el, card) {
   
   const el2 = document.getElementById('tarot-result');
   el2.style.display = 'block';
-  el2.innerHTML = result;
+  const resultDiv = document.createElement('div');
+  resultDiv.className = 'result-box';
+  resultDiv.style.marginTop = '10px';
+  resultDiv.innerHTML = result;
+  el2.appendChild(resultDiv);
   el2.classList.add('fade-in');
 }
 
